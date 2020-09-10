@@ -1,0 +1,52 @@
+---
+title: "NFL Scores"
+author: "Daniel Baller"
+date: "Sept 3, 2020"
+output: pdf_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+## NFL Scores from cbssports.com
+
+```{r}
+library(tidyverse)
+library(stringr)
+library(XML)
+library(xml2)
+library(purrr)
+library(rvest)
+
+# Only thing you need to change (add additional week)
+
+week = list(1,2,3,4) # List of weeks
+
+url = "https://www.cbssports.com/nfl/scoreboard/2020/regular/"  #base URL
+
+list_of_pages = function(x){
+  str_c(url,x)
+}
+
+scores = function(week, url){
+  
+  stats = url%>%
+    read_html()%>%
+    html_nodes(".total-score, .helper-team-name")%>%
+    html_text()%>%
+    matrix(ncol = 4, byrow = TRUE)%>%
+    as.data.frame()%>%
+    select(V1,V2,V3,V4)%>%
+    rename(`Away Team` = V1, `Away Score` = V2, `Home Score` = V4, `Home Team` = V3)%>%
+    mutate(Week = week)
+  
+}
+
+week%>%
+  map(list_of_pages) %>% 
+  map2(week,.,scores)%>%
+  bind_rows() %>% 
+  write_csv(glue::glue("../CSV_Data_Files/NFL_Scores_{length(week)}.csv"))
+```
+
