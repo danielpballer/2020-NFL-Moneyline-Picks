@@ -25,10 +25,10 @@ source("../Functions/functions2.R")
 ```
 
 ```{r Reading in our picks files, include=FALSE}
-week_1 = read_csv("../CSV_Data_Files/NFL Week 1.csv")
+week_1 = read_csv("../CSV_Data_Files/2020 NFL Week 1.csv")
 #week_2 = read_csv("../CSV_Data_Files/NFL Week 2.csv")
 #week_3 = read_csv("../CSV_Data_Files/NFL Week 3.csv")
-cadet_wk1 = read_csv("../CSV_Data_Files/NFL Week 1 MA206.csv")
+cadet_wk1 = read_csv("../CSV_Data_Files/2020 NFL Week 1 MA206.csv")
 #cadet_wk2 = read_csv("../CSV_Data_Files/NFL Week 2 MA206.csv")
 #cadet_wk3 = read_csv("../CSV_Data_Files/NFL Week 3 MA206.csv")
 
@@ -39,9 +39,11 @@ cdt.picks = list(cadet_wk1) #add in the additional weeks
 
 ```{r read in scores clean data, include=FALSE}
 Scores = read_csv("../CSV_Data_Files/NFL_Scores_1.csv") %>% janitor::clean_names()
+#Scores = read_csv("../CSV_Data_Files/NFL_Scores_12.csv") #%>% janitor::clean_names()
 
 #Cleaning the data and getting a total list of winners
 Scores = cleaning(Scores)
+#Scores = cleaning2(Scores)
 
 #creating a list of winners for each week
 winners = map(weeks, weekly_winners)
@@ -52,6 +54,12 @@ this_week = pull(winners[[length(winners)]])
 #Getting the number of games for each week
 weekly_number_of_games = map_dbl(weeks, week_number_games)
 ```
+
+```{r eval=FALSE, message=FALSE, warning=FALSE, include=FALSE}
+wk1_FPI = c("Las Vegas Raiders", "Baltimore Ravens", "Chicago Bears", "Minisota Vikings","Buffalo Bills", "Seattle Seahawks",
+            "New England Patriots","Indianapolis Colts", "Philidelphia Eagles", "Las Angeles Chargers", "New Orleans Saints", "San Fransisco 49ers", "Los Angeles Rams", "Pittsburgh Steelers", "Denver Broncos")
+```
+
 
 ```{r number of games and CBS, message=FALSE, warning=FALSE, include=FALSE}
 CBSsports = c("Jacksonville Jaguars","Buffalo Bills","Philidelphia Eagles","New England Patriots","Minnesota Vikings","Baltimore Ravens","Atlanta Falcons","Green Bay Packers","Dallas Cowboys","Tampa Bay Buccaneers","Carolina Panthers","San Francisco 49ers","Seattle Seahawks","Los Angeles Chargers","Los Angeles Rams","Chicago Bears")
@@ -141,11 +149,11 @@ season_wins = sum(unlist(weekly_group_correct_picks))
 
 #calculating the number of people who picked this week
 Total = dim(data)[1]
+
+ #Need to fix
+# `r paste("CBS Sports win percentage for the week is", CBS, sep = " ") `
 ```
  `r paste("Our win percentage for the week is", weekly_win_percentage[[length(weekly_win_percentage)]], sep = " ") `
- 
- #Need to fix
- `r paste("CBS Sports win percentage for the week is", CBS, sep = " ") `
  
  `r paste("Our season win percentage so far is", season_win_percentage, sep = " ") `
  
@@ -646,7 +654,7 @@ pred_table[[length(pred_table)]] %>% mutate(Game = row_number()) %>%
     align = "center") %>% 
    tab_header(
     title = md("This Week's Predictions"),
-    subtitle = md(glue("Week {length(results)}"))
+    subtitle = md(glue("Week {length(weeks)}"))
     ) %>% 
    tab_options(
     data_row.padding = px(3)
@@ -666,7 +674,7 @@ c_pred_table[[length(pred_table)]] %>% mutate(Game = row_number()) %>%
     align = "center") %>% 
    tab_header(
     title = md("This Week's Cadet Predictions"),
-    subtitle = md(glue("Week {length(results)}"))
+    subtitle = md(glue("Week {length(weeks)}"))
     ) %>% 
    tab_options(
     data_row.padding = px(3)
