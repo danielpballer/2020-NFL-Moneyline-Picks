@@ -1,0 +1,70 @@
+---
+title: "NFL Scores Week 3"
+author: "Daniel Baller"
+date: "Sept 3, 2020"
+output: pdf_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+## NFL Scores from cbssports.com
+
+```{r}
+library(tidyverse)
+library(stringr)
+library(XML)
+library(xml2)
+library(purrr)
+library(rvest)
+
+# Only thing you need to change (add additional week)
+
+week = list(1,2,3) # List of weeks
+
+url = "https://www.cbssports.com/nfl/schedule/2020/regular/"  #base URL
+
+list_of_pages = function(x){
+  str_c(url,x)
+}
+
+scores = function(week, url){
+  
+  stats = url%>%
+    read_html()%>%
+    html_nodes(".CellGame a")%>%
+    html_text() %>% 
+    matrix(ncol = 1, byrow = TRUE) %>%
+    as.data.frame()%>%
+    rename(`Score` = V1) %>% 
+    separate(Score, sep = " ", into = c("TM1","Score1", "vs", "TM2", "Score2")) %>% 
+    mutate(week = week)
+}
+
+week%>%
+  map(list_of_pages) %>% 
+  map2(week,.,scores)%>%
+  bind_rows() %>% 
+  write_csv(glue::glue("../CSV_Data_Files/NFL_Scores_{length(week)}.csv"))
+```
+
+```{r}
+read_html("https://www.cbssports.com/nfl/schedule/2020/regular/1/")%>%
+    html_nodes(".CellGame a , .TeamName a")%>%
+    html_text() %>% 
+    matrix(ncol = 3, byrow = TRUE) %>%
+    as.data.frame()%>%
+    rename(`Away Team` = V1, `Home Team` = V2, `Score` = V3) %>% 
+    separate(Score, sep = " ", into = c("TM1","Score1", "vs", "TM2", "Score2"))
+```
+
+```{r}
+read_html("https://www.cbssports.com/nfl/schedule/2020/regular/1/")%>%
+    html_nodes(".CellGame a")%>%
+    html_text() %>% 
+    matrix(ncol = 1, byrow = TRUE) %>%
+    as.data.frame()%>%
+    rename(`Score` = V1) %>% 
+    separate(Score, sep = " ", into = c("TM1","Score1", "vs", "TM2", "Score2"))
+```

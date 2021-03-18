@@ -75,6 +75,7 @@ cleaning = function(Scores){
 #Data Cleaning function for CBS Schedule page and creating the winners data
 cleaning2 = function(Scores){
   Scores %>% 
+    filter(Score1!="pm") %>% #accounting for postponed games.  
     mutate(TM1 = case_when(
       TM1 == "GB" ~ "Green Bay Packers",
       TM1 == "WAS" ~ "Washington Football Team",
@@ -141,10 +142,48 @@ cleaning2 = function(Scores){
       TM2 == "NO" ~ "New Orleans Saints",
       TM2 == "LV" ~ "Las Vegas Raiders",
       TM2 == "LAR" ~ "Los Angeles Rams")) %>%
-    mutate(winner = case_when(Score1 > Score2 ~ TM1,
-                              Score1 == Score2 ~ "TIE",
-                              Score1 < Score2 ~ TM2))
+    mutate(winner = case_when(as.numeric(Score1) > as.numeric(Score2) ~ TM1,
+                              as.numeric(Score1) == as.numeric(Score2) ~ "TIE",
+                              as.numeric(Score1) < as.numeric(Score2) ~ TM2))
 }
+#home team cleaning
+cleaning3 = function(Scores){
+  Scores %>% 
+    mutate(home_team = case_when(
+      home_team == "Green Bay" ~ "Green Bay Packers",
+      home_team == "Washington" ~ "Washington Football Team",
+      home_team == "Buffalo" ~ "Buffalo Bills",
+      home_team == "Atlanta" ~ "Atlanta Falcons",
+      home_team == "Baltimore" ~ "Baltimore Ravens",
+      home_team == "Kansas City" ~ "Kansas City Chiefs",
+      home_team == "Tennessee" ~ "Tennessee Titans",
+      home_team == "Indianapolis" ~ "Indianapolis Colts",
+      home_team == "Cincinnati" ~ "Cincinnati Bengals",
+      home_team == "San Francisco" ~ "San Francisco 49ers",
+      home_team == "N.Y. Giants" ~ "New York Giants",
+      home_team == "Detroit" ~ "Detroit Lions",
+      home_team == "Pittsburgh" ~ "Pittsburgh Steelers",
+      home_team == "Houston" ~ "Houston Texans",
+      home_team == "Denver" ~ "Denver Broncos",
+      home_team == "Tampa Bay" ~ "Tampa Bay Buccaneers",
+      home_team == "Arizona" ~ "Arizona Cardinals",
+      home_team == "Chicago" ~ "Chicago Bears",
+      home_team == "Carolina" ~ "Carolina Panthers",
+      home_team == "Philadelphia" ~ "Philadelphia Eagles",
+      home_team == "N.Y. Jets" ~ "New York Jets",
+      home_team == "Minnesota" ~ "Minnesota Vikings",
+      home_team == "Miami" ~ "Miami Dolphins",
+      home_team == "Jacksonville" ~ "Jacksonville Jaguars",
+      home_team == "Cleveland" ~ "Cleveland Browns",
+      home_team == "L.A. Chargers" ~ "Los Angeles Chargers",
+      home_team == "Seattle" ~ "Seattle Seahawks",
+      home_team == "Dallas" ~ "Dallas Cowboys",
+      home_team == "New England" ~ "New England Patriots",
+      home_team == "New Orleans" ~ "New Orleans Saints",
+      home_team == "Las Vegas" ~ "Las Vegas Raiders",
+      home_team == "L.A. Rams" ~ "Los Angeles Rams"))
+}
+
 #Creating a list of winners for each week
 
 weekly_winners = function(weeks){
@@ -258,7 +297,8 @@ indiv_weekly_pred = function(x,y,z){
     }
   }
   
-  week_num = glue("Week {z}")
+
+  week_num = glue("Week {z}") # use this to have "Week x" as the column headers
   season_wk = indiv %>%
     select(Name) %>%
     add_column(!!week_num := indiv_correct_wk)
